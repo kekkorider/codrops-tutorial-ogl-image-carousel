@@ -1,4 +1,4 @@
-import { Renderer, Program, Mesh, Triangle } from 'ogl'
+import { Renderer, Program, Mesh, Triangle, Vec2 } from 'ogl'
 import { gsap } from 'gsap'
 import { Pane } from 'tweakpane'
 
@@ -35,7 +35,13 @@ class WebGLCarousel {
       vertex: require('./shaders/effect.vertex.glsl'),
       fragment: require('./shaders/effect.fragment.glsl'),
       uniforms: {
-        uProgress: { value: 0 }
+        uProgress: { value: 0 },
+        uResolution: {
+          value: new Vec2(
+            this.gl.canvas.clientWidth,
+            this.gl.canvas.clientHeight
+          )
+        }
       }
     })
 
@@ -57,6 +63,12 @@ class WebGLCarousel {
 
   _onResize() {
     this.renderer.setSize(this.wrapper.clientWidth, this.wrapper.clientHeight)
+
+    // Update the uResolution uniform
+    this.program.uniforms.uResolution.value = new Vec2(
+      this.gl.canvas.clientWidth,
+      this.gl.canvas.clientHeight
+    )
   }
 }
 

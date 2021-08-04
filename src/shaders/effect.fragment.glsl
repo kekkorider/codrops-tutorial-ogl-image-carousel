@@ -1,6 +1,7 @@
 precision highp float;
 
 uniform float uProgress;
+uniform vec2 uResolution;
 
 varying vec2 vUv;
 
@@ -10,6 +11,7 @@ void main() {
   // UV coordinates that go from -1 to +1,
   // useful to easily align things at the center of the screen.
   vec2 uv = vUv*2.0 - 1.0;
+  uv.x *= uResolution.x / uResolution.y;
 
   vec3 color = vec3(0.0);
 
