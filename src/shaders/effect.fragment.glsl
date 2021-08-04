@@ -24,7 +24,10 @@ float Tiles(vec2 uv) {
   // "gv" stands for "grid UV".
   vec2 gv = fract(uv*5.0);
 
-  // For each tile, loop through its neighbor tiles and
+  // Get a unique identifier for each tile
+  vec2 id = floor(uv*5.0);
+
+  // For each tile, loop through its neighbor tiles (+ itself) and
   // draw a triangle in each one of them.
   // This gives the illusion that what's drawn goes past the boundaries.
   for (float y = -1.0; y <= 1.0; y++) {
@@ -32,8 +35,11 @@ float Tiles(vec2 uv) {
       // Get the coordinates of the neighbor tile
       vec2 tileOffset = vec2(x, y);
 
+      // Shift the tile by half of its width on even rows
+      vec2 tileShift = vec2(mod(id.y, 2.0)*0.5, 0.0);
+
       // Draw the triangle
-      result += Triangle(gv - tileOffset, vec2(0.5));
+      result += Triangle(gv - tileOffset - tileShift, vec2(0.5));
     }
   }
 
