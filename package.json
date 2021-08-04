@@ -5,7 +5,8 @@
   },
   "dependencies": {
     "gsap": "^3.7.1",
-    "ogl": "^0.0.73"
+    "ogl": "^0.0.73",
+    "tweakpane": "^3.0.4"
   },
   "devDependencies": {
     "glslify-bundle": "^5.1.1",

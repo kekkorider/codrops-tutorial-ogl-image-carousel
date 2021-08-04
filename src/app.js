@@ -1,5 +1,6 @@
 import { Renderer, Program, Mesh, Triangle } from 'ogl'
 import { gsap } from 'gsap'
+import { Pane } from 'tweakpane'
 
 class WebGLCarousel {
   constructor() {
@@ -9,11 +10,11 @@ class WebGLCarousel {
   init() {
     this._createRenderer()
     this._createScene()
+    this._createDebugPanel()
     this._addListeners()
     this._onResize()
 
     gsap.ticker.add(() => {
-      this.program.uniforms.uTime.value += 0.01
       this.renderer.render({ scene: this.mesh })
     })
   }
@@ -34,7 +35,6 @@ class WebGLCarousel {
       vertex: require('./shaders/effect.vertex.glsl'),
       fragment: require('./shaders/effect.fragment.glsl'),
       uniforms: {
-        uTime: { value: 0 },
         uProgress: { value: 0 }
       }
     })
@@ -43,6 +43,12 @@ class WebGLCarousel {
       geometry: this.geometry,
       program: this.program
     })
+  }
+
+  _createDebugPanel() {
+    const pane = new Pane()
+
+    pane.addInput(this.program.uniforms.uProgress, 'value', { label: 'uProgress', min: 0, max: 1, step: 0.01 })
   }
 
   _addListeners() {
