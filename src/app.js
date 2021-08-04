@@ -41,6 +41,9 @@ class WebGLCarousel {
             this.gl.canvas.clientWidth,
             this.gl.canvas.clientHeight
           )
+        },
+        uGridSize: {
+          value: new Vec2(5, 3)
         }
       }
     })
@@ -55,6 +58,9 @@ class WebGLCarousel {
     const pane = new Pane()
 
     pane.addInput(this.program.uniforms.uProgress, 'value', { label: 'uProgress', min: 0, max: 1, step: 0.01 })
+
+    pane.addInput(this.program.uniforms.uGridSize.value, 'x', { label: 'Grid size X', min: 0, max: 20, step: 1 })
+    pane.addInput(this.program.uniforms.uGridSize.value, 'y', { label: 'Grid size Y', min: 0, max: 20, step: 1 })
   }
 
   _addListeners() {

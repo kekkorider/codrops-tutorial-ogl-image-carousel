@@ -2,6 +2,7 @@ precision highp float;
 
 uniform float uProgress;
 uniform vec2 uResolution;
+uniform vec2 uGridSize;
 
 varying vec2 vUv;
 
@@ -42,24 +43,28 @@ float Tiles(vec2 uv) {
       // Shift the tile by half of its width on even rows
       vec2 tileShift = vec2(mod(triangleID.y, 2.0)*0.5, 0.0);
 
+      // Determine if the current triangle can be drawn or not
+      float isVisible = step(abs(triangleID.x), uGridSize.x);
+      isVisible *= step(abs(triangleID.y), uGridSize.y);
+
       /*
        * Draw the triangles pointing down
        */
-      result += Triangle(gv - tileOffset - tileShift, vec2(0.5));
+      float d = Triangle(gv - tileOffset - tileShift, vec2(0.5));
+      d *= isVisible;
 
       /*
        * Draw the triangles pointing up
        */
 
       // Create a new set of UVs named `st` and rotate them around their center
-      vec2 st = (gv - 0.5)*Rotate(PI) + 0.5;
-
-      // Offset the new UVs by half of the width plus
-      // an arbitrary value for the Y axis.
-      st -= vec2(0.5, 0.37);
+      vec2 st = (gv - tileOffset - tileShift)*Rotate(PI) + 0.5;
 
       // Add the triangle
-      result += Triangle(st - tileOffset + tileShift, vec2(0.5));
+      float u = Triangle(st, vec2(0.5, 0.4));
+      u *= isVisible;
+
+      result += d+u;
     }
   }
 
