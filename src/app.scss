@@ -1,0 +1,21 @@
+html,
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background-color: #112233;
+}
+
+#canvas-wrapper {
+  height: 100vh;
+  position: relative;
+  width: 100%;
+
+  canvas {
+    height: 100%;
+    position: absolute;
+    width: 100%;
+  }
+}
