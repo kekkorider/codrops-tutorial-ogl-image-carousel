@@ -24,7 +24,18 @@ float Tiles(vec2 uv) {
   // "gv" stands for "grid UV".
   vec2 gv = fract(uv*5.0);
 
-  result += Triangle(gv, vec2(0.5));
+  // For each tile, loop through its neighbor tiles and
+  // draw a triangle in each one of them.
+  // This gives the illusion that what's drawn goes past the boundaries.
+  for (float y = -1.0; y <= 1.0; y++) {
+    for (float x = -1.0; x <= 1.0; x++) {
+      // Get the coordinates of the neighbor tile
+      vec2 tileOffset = vec2(x, y);
+
+      // Draw the triangle
+      result += Triangle(gv - tileOffset, vec2(0.5));
+    }
+  }
 
   return result;
 }
