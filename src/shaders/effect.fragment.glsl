@@ -6,6 +6,7 @@ uniform vec2 uResolution;
 varying vec2 vUv;
 
 #pragma glslify: Shape = require(./modules/Shape)
+#pragma glslify: Rotate = require(./modules/Rotate)
 
 float Triangle(vec2 uv, vec2 position) {
   float size = 0.2;
@@ -35,11 +36,30 @@ float Tiles(vec2 uv) {
       // Get the coordinates of the neighbor tile
       vec2 tileOffset = vec2(x, y);
 
-      // Shift the tile by half of its width on even rows
-      vec2 tileShift = vec2(mod(id.y, 2.0)*0.5, 0.0);
+      // Get a unique identifier of each triangle
+      vec2 triangleID = id + tileOffset;
 
-      // Draw the triangle
+      // Shift the tile by half of its width on even rows
+      vec2 tileShift = vec2(mod(triangleID.y, 2.0)*0.5, 0.0);
+
+      /*
+       * Draw the triangles pointing down
+       */
       result += Triangle(gv - tileOffset - tileShift, vec2(0.5));
+
+      /*
+       * Draw the triangles pointing up
+       */
+
+      // Create a new set of UVs named `st` and rotate them around their center
+      vec2 st = (gv - 0.5)*Rotate(PI) + 0.5;
+
+      // Offset the new UVs by half of the width plus
+      // an arbitrary value for the Y axis.
+      st -= vec2(0.5, 0.37);
+
+      // Add the triangle
+      result += Triangle(st - tileOffset + tileShift, vec2(0.5));
     }
   }
 
