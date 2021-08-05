@@ -4,11 +4,13 @@ uniform float uProgress;
 uniform vec2 uResolution;
 uniform vec2 uGridSize;
 uniform sampler2D uTexture0;
+uniform vec2 uTexture0Size;
 
 varying vec2 vUv;
 
 #pragma glslify: Shape = require(./modules/Shape)
 #pragma glslify: Rotate = require(./modules/Rotate)
+#pragma glslify: Cover = require(./modules/Cover)
 
 float Triangle(vec2 uv, vec2 position) {
   float size = 0.2;
@@ -82,7 +84,8 @@ void main() {
 
   color += Tiles(uv);
 
-  vec4 tex0 = texture2D(uTexture0, uv*0.5 + 0.5);
+  vec2 coverUV = Cover(vUv, uResolution, uTexture0Size);
+  vec4 tex0 = texture2D(uTexture0, coverUV);
 
   gl_FragColor = vec4(tex0.rgb, 1.0);
 }

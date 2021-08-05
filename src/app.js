@@ -24,6 +24,11 @@ class WebGLCarousel {
         this._onResize()
 
         gsap.ticker.add(() => {
+          this.program.uniforms.uTexture0Size.value = new Vec2(
+            this.textures[0].width,
+            this.textures[0].height
+          )
+
           this.renderer.render({ scene: this.mesh })
         })
       })
@@ -57,6 +62,9 @@ class WebGLCarousel {
         },
         uTexture0: {
           value: this.textures[0]
+        },
+        uTexture0Size: {
+          value: new Vec2()
         }
       }
     })
