@@ -82,10 +82,17 @@ void main() {
 
   vec3 color = vec3(0.0);
 
-  color += Tiles(uv);
+  // Create the masks with the triangles
+  float mask0 = Tiles(uv);
 
+  // Create the textures
   vec2 coverUV = Cover(vUv, uResolution, uTexture0Size);
   vec4 tex0 = texture2D(uTexture0, coverUV);
 
-  gl_FragColor = vec4(tex0.rgb, 1.0);
+  // "Layers" are just the textures with the masks applied
+  vec3 layer0 = tex0.rgb*mask0;
+
+  color = layer0;
+
+  gl_FragColor = vec4(color, 1.0);
 }
