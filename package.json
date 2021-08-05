@@ -4,6 +4,8 @@
     "build": "rm -rf dist && parcel build src/index.html --no-source-maps"
   },
   "dependencies": {
+    "colorthief": "^2.3.2",
+    "glsl-blend": "^1.0.3",
     "gsap": "^3.7.1",
     "ogl": "^0.0.73",
     "tweakpane": "^3.0.4"

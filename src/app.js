@@ -1,6 +1,7 @@
 import { Renderer, Program, Mesh, Triangle, Vec2, Texture } from 'ogl'
 import { gsap } from 'gsap'
 import { Pane } from 'tweakpane'
+import ColorThief from 'colorthief'
 
 class WebGLCarousel {
   constructor() {
@@ -24,6 +25,8 @@ class WebGLCarousel {
         this._onResize()
 
         gsap.ticker.add(() => {
+          this.program.uniforms.uTime.value += 0.1
+
           this.program.uniforms.uTexture0Size.value = new Vec2(
             this.textures[0].width,
             this.textures[0].height
@@ -76,7 +79,23 @@ class WebGLCarousel {
         },
         uTexture1Size: {
           value: new Vec2()
-        }
+        },
+        uNoiseTexture: {
+          value: this.noiseTexture
+        },
+        uBackground0: {
+          value: [
+            this.colors[0].primary,
+            this.colors[0].secondary
+          ]
+        },
+        uBackground1: {
+          value: [
+            this.colors[1].primary,
+            this.colors[1].secondary
+          ]
+        },
+        uTime: { value: 0 }
       }
     })
 
@@ -87,46 +106,70 @@ class WebGLCarousel {
   }
 
   /**
-   * Load an image and add it to the `this.textures` array.
+   * Load an image as an OGL `Texture` object.
    *
    * @method _loadTexture()
    *
    * @param {String} url The URL of the image to load.
-   * @param {Number} index The index of the image in the `this.texturesURLs` array.
+   * @param {Object} params The OGL configuration object for the `Texture` to load
    *
-   * @returns `Promise` when the texture has been loaded and added to the `this.textures` array
+   * @returns `Promise` with the `Texture` object when the texture has been loaded
    */
-   _loadTexture(url, index) {
+   _loadTexture(url, params = {}) {
     return new Promise(resolve => {
       const img = new Image()
       img.src = url
 
       img.onload = () => {
-        this.textures[index] = new Texture(this.gl, {
+        const texture = new Texture(this.gl, {
+          ...params,
           image: img
         })
 
-        resolve()
+        resolve(texture)
       }
     })
   }
 
   /**
-   * Load all the images from the `this.texturesURLs` array.
+   * Load all the images from the `this.texturesURLs` array and the noise texture.
    *
    * @method _loadTextures()
    *
    * @returns `Promise` when all the images have been loaded.
    */
-  _loadTextures() {
+   _loadTextures() {
     return new Promise(resolve => {
-      this.textures = []
-
-      const promises = this.texturesURLs.map((url, index) => this._loadTexture(url, index))
+      const textures = this.texturesURLs.map(url => this._loadTexture(url))
+      const colorThief = new ColorThief()
 
       Promise
-        .all(promises)
-        .then(() => resolve())
+        // Load the images for the carousel
+        .all(textures)
+        .then(res => {
+          // Fill an array of colors for each texture
+          // to use for the background
+          this.colors = res.map(e => {
+            return ({
+              primary: colorThief.getColor(e.image),
+              secondary: colorThief.getPalette(e.image)[3]
+            })
+          })
+
+          this.textures = res
+        })
+
+        // Load the noise texture
+        .then(() => {
+          return this._loadTexture('/images/Noise_18.jpg', {
+            wrapS: this.gl.REPEAT,
+            wrapT: this.gl.REPEAT
+          })
+        })
+        .then(res => {
+          this.noiseTexture = res
+          resolve()
+        })
     })
   }
 

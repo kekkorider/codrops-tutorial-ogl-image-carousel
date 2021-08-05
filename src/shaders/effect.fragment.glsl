@@ -1,5 +1,6 @@
 precision highp float;
 
+uniform float uTime;
 uniform float uProgress;
 uniform vec2 uResolution;
 uniform vec2 uGridSize;
@@ -7,6 +8,9 @@ uniform sampler2D uTexture0;
 uniform vec2 uTexture0Size;
 uniform sampler2D uTexture1;
 uniform vec2 uTexture1Size;
+uniform sampler2D uNoiseTexture;
+uniform vec3 uBackground0[2];
+uniform vec3 uBackground1[2];
 
 varying vec2 vUv;
 
@@ -14,6 +18,7 @@ varying vec2 vUv;
 #pragma glslify: Rotate = require(./modules/Rotate)
 #pragma glslify: Cover = require(./modules/Cover)
 #pragma glslify: Random = require(./modules/Random)
+#pragma glslify: blendNormal = require(glsl-blend/normal)
 
 float Triangle(vec2 uv, vec2 position, float size) {
   float sides = 3.0;
@@ -150,12 +155,33 @@ void main() {
   coverUV = (coverUV - 0.5)*mix(0.95, 1.0, smoothstep(0.6, 1.0, uProgress)) + 0.5; // Scale from 0.95 to 1.0
   vec4 tex1 = texture2D(uTexture1, coverUV);
 
-  // "Layers" are just the textures with the masks applied
-  vec3 layer0 = tex0.rgb*mask0;
-  vec3 layer1 = tex1.rgb*mask1;
+  // Background noise texture
+  vec2 bgNoiseUV = uv;
+  bgNoiseUV *= 0.25; // Make it bigger
+  bgNoiseUV *= Rotate(PI*0.25); // Rotate by 1/4 PI
+  bgNoiseUV += vec2(uTime*0.01, -uTime*0.03); // Animate the coordinates
+  vec3 bgNoise = texture2D(uNoiseTexture, bgNoiseUV).rgb;
 
-  // Display one texture or the other based on the value of `uProgress`
-  color = mix(layer0, layer1, smoothstep(0.5, 0.85, uProgress));
+  // Set the two background layers.
+  // Each layer's color is a mix of the primary and
+  // secondary color based on the value of the noise.
+  // The colors are divided by 255 because their
+  // Original value goes from 0 to 255, while in
+  // GLSL colors go from 0 to 1.
+  vec3 background0 = mix(uBackground0[0] / 255., uBackground0[1] / 255., bgNoise);
+  vec3 background1 = mix(uBackground1[0] / 255., uBackground1[1] / 255., bgNoise);
+
+  // "Layers" are just the textures with the masks applied
+  vec4 layer0 = tex0*mask0;
+  vec4 layer1 = tex1*mask1;
+
+  // "Slides" are simply the background textures with
+  // the layers on top of them
+  vec3 slide0 = blendNormal(background0, layer0.rgb, layer0.a);
+  vec3 slide1 = blendNormal(background1, layer1.rgb, layer1.a);
+
+  // Display one slide or the other based on the value of `uProgress`
+  color = mix(slide0, slide1, smoothstep(0.5, 0.85, uProgress));
 
   gl_FragColor = vec4(color, 1.0);
 }
