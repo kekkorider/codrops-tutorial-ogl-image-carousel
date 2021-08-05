@@ -24,10 +24,10 @@ float Tiles(vec2 uv) {
   // depending on how many times the UVs are multiplied,
   // creating the illusion of a grid.
   // "gv" stands for "grid UV".
-  vec2 gv = fract(uv*5.0);
+  vec2 gv = fract(uv*5.0 + 0.25);
 
   // Get a unique identifier for each tile
-  vec2 id = floor(uv*5.0);
+  vec2 id = floor(uv*5.0 + 0.25);
 
   // For each tile, loop through its neighbor tiles (+ itself) and
   // draw a triangle in each one of them.
