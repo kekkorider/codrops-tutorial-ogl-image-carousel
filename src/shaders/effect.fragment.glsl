@@ -77,7 +77,7 @@ float Tiles(vec2 uv, float progress) {
       float alpha = smoothstep(fadeStart, 0., progress);
 
       // Determine the size of each triangle using the `progress` parameter
-      float sizeFactor = min(Random(triangleID), 0.3);
+      float sizeFactor = min(Random(triangleID), 0.55);
 
       // Get the normalized distance of the current triangle from the center of the
       // screen to add it to the scale of the triangle.
@@ -87,7 +87,8 @@ float Tiles(vec2 uv, float progress) {
       float size = mix(0.26, 0.9, progress*sizeFactor)+dist;
 
       // Apply a random rotation between -PI and +PI to each triangle
-      mat2 triangleRandomRotation = Rotate(PI*(Random(triangleID) - 0.5)*2.0);
+      float triangleAnimationRotation = PI*((Random(triangleID.yx) - 0.5) * 2.0)*0.1*progress*uAnimationDirection; // Additional rotation during animation
+      mat2 triangleRandomRotation = Rotate(triangleAnimationRotation+PI*(Random(triangleID) - 0.5)*2.0);
 
       /*
        * Draw the triangles pointing down
@@ -121,10 +122,10 @@ float Tiles(vec2 uv, float progress) {
   // This basically creates holes in the mask.
   // This step is needed because we will add this mask with the triangles, otherwise
   // The final result would have areas much more luminous than the normal.
-  fullImageMask *= 1.0 - result;
+  fullImageMask *= 1.0 - (result * mix(1.0, 0.5, abs(progress*2.0)));
 
   // Set the alpha value of this mask using the `progress` parameter.
-  fullImageMask *= smoothstep(0.45, 0.1, abs(progress));
+  fullImageMask *= smoothstep(0.85, 0.5, abs(progress));
 
   result += fullImageMask;
 
@@ -149,11 +150,11 @@ void main() {
 
   // Create the textures
   vec2 coverUV = Cover(vUv, uResolution, uTexture0Size);
-  coverUV = (coverUV - 0.5)*mix(1.0, 1.05, smoothstep(0.1, 0.5, uProgress)) + 0.5; // Scale from 1.0 to 1.05
+  coverUV = (coverUV - 0.5)*mix(1.0, 1.15, smoothstep(0.1, 0.7, uProgress)) + 0.5; // Scale from 1.0 to 1.05
   vec4 tex0 = texture2D(uTexture0, coverUV);
 
   coverUV = Cover(vUv, uResolution, uTexture1Size);
-  coverUV = (coverUV - 0.5)*mix(0.95, 1.0, smoothstep(0.6, 1.0, uProgress)) + 0.5; // Scale from 0.95 to 1.0
+  coverUV = (coverUV - 0.5)*mix(0.85, 1.0, smoothstep(0.4, 1.0, uProgress)) + 0.5; // Scale from 0.95 to 1.0
   vec4 tex1 = texture2D(uTexture1, coverUV);
 
   // Background noise texture
