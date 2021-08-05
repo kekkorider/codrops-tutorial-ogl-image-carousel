@@ -5,14 +5,34 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Triangles' grid carousel [OGL+GSAP]</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Noto+Sans&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./app.scss">
 </head>
 <body>
   <div id="canvas-wrapper" data-canvas-wrapper></div>
 
+  <div id="slides">
+    <div class="slide" data-slide>
+      <span class="slide__title | font-display" data-slide-title style="--progress: 0">We are homo ludens</span>
+      <span class="slide__copy | font-copy" data-slide-copy>We are the ones who play</span>
+    </div>
+
+    <div class="slide" data-slide>
+      <span class="slide__title | font-display" data-slide-title style="--progress: -110">It's dangerous</span>
+      <span class="slide__copy | font-copy" data-slide-copy style="opacity: 0">to go alone, take this!</span>
+    </div>
+
+    <div class="slide" data-slide>
+      <span class="slide__title | font-display" data-slide-title style="--progress: -110">Snake? Snake?</span>
+      <span class="slide__copy | font-copy" data-slide-copy style="opacity: 0">SNAAAAAAAAAAAKE!</span>
+    </div>
+  </div>
+
   <nav id="controls">
-    <button data-carousel-control data-dir="-1">Prev</button>
-    <button data-carousel-control data-dir="1">Next</button>
+    <button class="font-display" data-carousel-control data-dir="-1">Prev</button>
+    <button class="font-display" data-carousel-control data-dir="1">Next</button>
   </nav>
 
   <script src="./app.js"></script>

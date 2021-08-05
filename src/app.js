@@ -21,7 +21,8 @@ class WebGLCarousel {
     }
 
     this.ui = {
-      buttons: document.querySelectorAll('[data-carousel-control]')
+      buttons: document.querySelectorAll('[data-carousel-control]'),
+      slides: document.querySelectorAll('[data-slide]')
     }
   }
 
@@ -233,6 +234,13 @@ class WebGLCarousel {
     if (nextTextureIndex >= this.textures.length)
       nextTextureIndex = 0
 
+    const currentSlide = this.ui.slides[this.state.currentTextureIndex]
+    const currentSlideTitle = currentSlide.querySelector('[data-slide-title]')
+    const currentSlideCopy = currentSlide.querySelector('[data-slide-copy]')
+
+    const nextSlide = this.ui.slides[nextTextureIndex]
+    const nextSlideTitle = nextSlide.querySelector('[data-slide-title]')
+    const nextSlideCopy = nextSlide.querySelector('[data-slide-copy]')
 
     const tl = new gsap.timeline({
       onStart: () => {
@@ -275,10 +283,23 @@ class WebGLCarousel {
     })
 
     tl
+      .add('start')
+      .to(currentSlideTitle, {
+        '--progress': 110,
+        duration: 0.5
+      })
+      .fromTo(nextSlideTitle, { '--progress': -110 }, {
+        '--progress': 0,
+        duration: 1
+      }, '<0.1')
+
+      .to(currentSlideCopy, { opacity: 0, duration: 0.35 }, 'start+=0.1')
+      .to(nextSlideCopy, { opacity: 1, duration: 0.5 }, '>')
+
       .to(this.program.uniforms.uProgress, {
         value: 1,
-        duration: 1.3
-      })
+        duration: 1.5
+      }, 'start')
   }
 
   _onResize() {
