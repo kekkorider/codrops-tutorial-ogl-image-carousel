@@ -15,8 +15,7 @@ varying vec2 vUv;
 #pragma glslify: Cover = require(./modules/Cover)
 #pragma glslify: Random = require(./modules/Random)
 
-float Triangle(vec2 uv, vec2 position) {
-  float size = 0.2;
+float Triangle(vec2 uv, vec2 position, float size) {
   float sides = 3.0;
   float blur = 0.001;
 
@@ -57,10 +56,14 @@ float Tiles(vec2 uv, float progress) {
       float fadeStart = clamp(Random(triangleID), 0.1, 0.9);
       float alpha = smoothstep(fadeStart, 0., progress);
 
+      // Determine the size of each triangle using the `progress` parameter
+      float sizeFactor = max(Random(triangleID), 0.3);
+      float size = mix(0.26, 0.9, progress*sizeFactor);
+
       /*
        * Draw the triangles pointing down
        */
-      float d = Triangle(gv - tileOffset - tileShift, vec2(0.5));
+      float d = Triangle(gv - tileOffset - tileShift, vec2(0.5), size);
       d *= isVisible;
       d *= alpha;
 
@@ -72,7 +75,7 @@ float Tiles(vec2 uv, float progress) {
       vec2 st = (gv - tileOffset - tileShift)*Rotate(PI) + 0.5;
 
       // Add the triangle
-      float u = Triangle(st, vec2(0.5, 0.4));
+      float u = Triangle(st, vec2(0.5, 0.4), size);
       u *= isVisible;
       u *= alpha;
 
@@ -92,8 +95,8 @@ void main() {
   vec3 color = vec3(0.0);
 
   // Animation progress for the image's mask
-  float progress0 = smoothstep(0.25, 0.8, uProgress);
-  float progress1 = smoothstep(1.0, 0.2, uProgress);
+  float progress0 = smoothstep(0.15, 0.85, uProgress); // [0 .. 1]
+  float progress1 = smoothstep(0.25, 0.95, uProgress) - 1.0; // [-1 .. 0]
 
   // Create the masks with the triangles
   float mask0 = Tiles(uv, progress0);
@@ -111,7 +114,7 @@ void main() {
   vec3 layer1 = tex1.rgb*mask1;
 
   // Display one texture or the other based on the value of `uProgress`
-  color = mix(layer0, layer1, uProgress);
+  color = mix(layer0, layer1, smoothstep(0.5, 0.85, uProgress));
 
   gl_FragColor = vec4(color, 1.0);
 }
