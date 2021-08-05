@@ -11,6 +11,7 @@ varying vec2 vUv;
 #pragma glslify: Shape = require(./modules/Shape)
 #pragma glslify: Rotate = require(./modules/Rotate)
 #pragma glslify: Cover = require(./modules/Cover)
+#pragma glslify: Random = require(./modules/Random)
 
 float Triangle(vec2 uv, vec2 position) {
   float size = 0.2;
@@ -20,7 +21,7 @@ float Triangle(vec2 uv, vec2 position) {
   return Shape(uv, position, size, sides, blur);
 }
 
-float Tiles(vec2 uv) {
+float Tiles(vec2 uv, float progress) {
   float result = 0.0;
 
   // This makes the UVs repeat infinitely on both axes
@@ -50,11 +51,16 @@ float Tiles(vec2 uv) {
       float isVisible = step(abs(triangleID.x), uGridSize.x);
       isVisible *= step(abs(triangleID.y), uGridSize.y);
 
+      // Set the alpha value of each triangle using the `progress` parameter
+      float fadeStart = clamp(Random(triangleID), 0.1, 0.9);
+      float alpha = smoothstep(fadeStart, 0., progress);
+
       /*
        * Draw the triangles pointing down
        */
       float d = Triangle(gv - tileOffset - tileShift, vec2(0.5));
       d *= isVisible;
+      d *= alpha;
 
       /*
        * Draw the triangles pointing up
@@ -66,6 +72,7 @@ float Tiles(vec2 uv) {
       // Add the triangle
       float u = Triangle(st, vec2(0.5, 0.4));
       u *= isVisible;
+      u *= alpha;
 
       result += d+u;
     }
@@ -82,8 +89,11 @@ void main() {
 
   vec3 color = vec3(0.0);
 
+  // Animation progress for the image's mask
+  float progress0 = smoothstep(0.1, 0.9, uProgress);
+
   // Create the masks with the triangles
-  float mask0 = Tiles(uv);
+  float mask0 = Tiles(uv, progress0);
 
   // Create the textures
   vec2 coverUV = Cover(vUv, uResolution, uTexture0Size);
