@@ -25,14 +25,19 @@ float Triangle(vec2 uv, vec2 position, float size) {
 float Tiles(vec2 uv, float progress) {
   float result = 0.0;
 
+  // Create a new set of UVs to apply a rotation matrix to, and
+  // use them to create the grid.
+  mat2 rotateUV = Rotate(PI*0.03 + PI*mix(0.0, 0.04, progress));
+  vec2 uv2 = uv*rotateUV;
+
   // This makes the UVs repeat infinitely on both axes
   // depending on how many times the UVs are multiplied,
   // creating the illusion of a grid.
   // "gv" stands for "grid UV".
-  vec2 gv = fract(uv*5.0 + 0.25);
+  vec2 gv = fract(uv2*5.0 + 0.25);
 
   // Get a unique identifier for each tile
-  vec2 id = floor(uv*5.0 + 0.25);
+  vec2 id = floor(uv2*5.0 + 0.25);
 
   // For each tile, loop through its neighbor tiles (+ itself) and
   // draw a triangle in each one of them.
@@ -138,9 +143,11 @@ void main() {
 
   // Create the textures
   vec2 coverUV = Cover(vUv, uResolution, uTexture0Size);
+  coverUV = (coverUV - 0.5)*mix(1.0, 1.05, smoothstep(0.1, 0.5, uProgress)) + 0.5; // Scale from 1.0 to 1.05
   vec4 tex0 = texture2D(uTexture0, coverUV);
 
   coverUV = Cover(vUv, uResolution, uTexture1Size);
+  coverUV = (coverUV - 0.5)*mix(0.95, 1.0, smoothstep(0.6, 1.0, uProgress)) + 0.5; // Scale from 0.95 to 1.0
   vec4 tex1 = texture2D(uTexture1, coverUV);
 
   // "Layers" are just the textures with the masks applied
