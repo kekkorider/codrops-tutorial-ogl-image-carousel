@@ -11,6 +11,7 @@ uniform vec2 uTexture1Size;
 uniform sampler2D uNoiseTexture;
 uniform vec3 uBackground0[2];
 uniform vec3 uBackground1[2];
+uniform float uAnimationDirection;
 
 varying vec2 vUv;
 
@@ -32,7 +33,7 @@ float Tiles(vec2 uv, float progress) {
 
   // Create a new set of UVs to apply a rotation matrix to, and
   // use them to create the grid.
-  mat2 rotateUV = Rotate(PI*0.03 + PI*mix(0.0, 0.04, progress));
+  mat2 rotateUV = Rotate(PI*0.03 + PI*mix(0.0, 0.04, progress*uAnimationDirection));
   vec2 uv2 = uv*rotateUV;
 
   // This makes the UVs repeat infinitely on both axes

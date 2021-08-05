@@ -19,3 +19,17 @@ body {
     width: 100%;
   }
 }
+
+#controls {
+  align-items: center;
+  bottom: 40px;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  width: 100%;
+
+  button {
+    margin: 0 20px;
+  }
+}

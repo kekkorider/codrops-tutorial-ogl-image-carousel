@@ -12,6 +12,17 @@ class WebGLCarousel {
       '/images/patrick-Qsy50Y7uEf0-unsplash.jpg',
       '/images/masahiro-miyagi-YF7yruF3W5E-unsplash.jpg'
     ]
+
+    this.state = {
+      isAnimating: false,
+      currentTextureIndex: 0,
+      texture0: null,
+      texture1: null
+    }
+
+    this.ui = {
+      buttons: document.querySelectorAll('[data-carousel-control]')
+    }
   }
 
   init() {
@@ -28,13 +39,13 @@ class WebGLCarousel {
           this.program.uniforms.uTime.value += 0.1
 
           this.program.uniforms.uTexture0Size.value = new Vec2(
-            this.textures[0].width,
-            this.textures[0].height
+            this.state.texture0.width,
+            this.state.texture0.height
           )
 
           this.program.uniforms.uTexture1Size.value = new Vec2(
-            this.textures[1].width,
-            this.textures[1].height
+            this.state.texture1.width,
+            this.state.texture1.height
           )
 
           this.renderer.render({ scene: this.mesh })
@@ -69,16 +80,22 @@ class WebGLCarousel {
           value: new Vec2(6, 3)
         },
         uTexture0: {
-          value: this.textures[0]
+          value: this.state.texture0
         },
         uTexture0Size: {
-          value: new Vec2()
+          value: new Vec2(
+            this.state.texture0.width,
+            this.state.texture0.height
+          )
         },
         uTexture1: {
-          value: this.textures[1]
+          value: this.state.texture1
         },
         uTexture1Size: {
-          value: new Vec2()
+          value: new Vec2(
+            this.state.texture1.width,
+            this.state.texture1.height
+          )
         },
         uNoiseTexture: {
           value: this.noiseTexture
@@ -95,7 +112,8 @@ class WebGLCarousel {
             this.colors[1].secondary
           ]
         },
-        uTime: { value: 0 }
+        uTime: { value: 0 },
+        uAnimationDirection: { value: 1 }
       }
     })
 
@@ -157,6 +175,8 @@ class WebGLCarousel {
           })
 
           this.textures = res
+          this.state.texture0 = res[0]
+          this.state.texture1 = res[1]
         })
 
         // Load the noise texture
@@ -184,6 +204,81 @@ class WebGLCarousel {
 
   _addListeners() {
     window.addEventListener('resize', this._onResize.bind(this), { passive: true })
+
+    for (const button of this.ui.buttons) {
+      button.addEventListener('click', this._onButtonClick.bind(this), { passive: true })
+    }
+  }
+
+  /**
+   * Animate the carousel towards the next slide.
+   *
+   * @method _onButtonClick()
+   *
+   * @param {Event} e The event triggered by the click on the button.
+   */
+   _onButtonClick(e) {
+    // Do nothing if an animation is already running
+    if (this.state.isAnimating) return
+
+    // Get the direction of the clicked button (defaults to 1)
+    const direction = Number(e.currentTarget.dataset.dir ?? 1)
+
+    // Define the index of the texture that will be set as texture1
+    let nextTextureIndex = this.state.currentTextureIndex + direction
+
+    if (nextTextureIndex < 0)
+      nextTextureIndex = this.textures.length - 1
+
+    if (nextTextureIndex >= this.textures.length)
+      nextTextureIndex = 0
+
+
+    const tl = new gsap.timeline({
+      onStart: () => {
+        // Prevent any other animation from starting
+        this.state.isAnimating = true
+
+        // Define the direction of the rotation during the transition
+        this.program.uniforms.uAnimationDirection.value = direction
+
+        // Set the next texture to display
+        this.state.texture1 = this.textures[nextTextureIndex]
+        this.program.uniforms.uTexture1.value = this.state.texture1
+
+        // Set the background colors of the next slide
+        this.program.uniforms.uBackground1.value = [
+          this.colors[nextTextureIndex].primary,
+          this.colors[nextTextureIndex].secondary
+        ]
+      },
+      onComplete: () => {
+        // Re-enable animations
+        this.state.isAnimating = false
+
+        // Reset the `uProgress` uniform ...
+        this.program.uniforms.uProgress.value = 0
+
+        // ... and set what was only the next texture as current texture
+        this.state.texture0 = this.textures[nextTextureIndex]
+        this.program.uniforms.uTexture0.value = this.state.texture0
+
+        // Same thing with the background colors
+        this.program.uniforms.uBackground0.value = [
+          this.colors[nextTextureIndex].primary,
+          this.colors[nextTextureIndex].secondary
+        ]
+
+        // End of the animation. Set the new texture's index as the current one.
+        this.state.currentTextureIndex = nextTextureIndex
+      }
+    })
+
+    tl
+      .to(this.program.uniforms.uProgress, {
+        value: 1,
+        duration: 1.3
+      })
   }
 
   _onResize() {
