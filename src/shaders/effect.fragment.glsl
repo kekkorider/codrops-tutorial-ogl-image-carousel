@@ -48,6 +48,15 @@ float Tiles(vec2 uv, float progress) {
       // Shift the tile by half of its width on even rows
       vec2 tileShift = vec2(mod(triangleID.y, 2.0)*0.5, 0.0);
 
+      // Offset each triangle by a value that goes from -1.0 to +1.0
+      float randomOffsetX = Random(triangleID.y);
+      randomOffsetX = (randomOffsetX - 0.5) * 2.0;
+
+      float randomOffsetY = Random(triangleID.x);
+      randomOffsetY = (randomOffsetY - 0.5) * 2.0;
+
+      vec2 randomOffset = vec2(randomOffsetX, randomOffsetY)*0.4;
+
       // Determine if the current triangle can be drawn or not
       float isVisible = step(abs(triangleID.x), uGridSize.x);
       isVisible *= step(abs(triangleID.y), uGridSize.y);
@@ -63,7 +72,7 @@ float Tiles(vec2 uv, float progress) {
       /*
        * Draw the triangles pointing down
        */
-      float d = Triangle(gv - tileOffset - tileShift, vec2(0.5), size);
+      float d = Triangle(gv - tileOffset - tileShift - randomOffset, vec2(0.5), size);
       d *= isVisible;
       d *= alpha;
 
@@ -72,7 +81,7 @@ float Tiles(vec2 uv, float progress) {
        */
 
       // Create a new set of UVs named `st` and rotate them around their center
-      vec2 st = (gv - tileOffset - tileShift)*Rotate(PI) + 0.5;
+      vec2 st = (gv - tileOffset - tileShift - randomOffset)*Rotate(PI) + 0.5;
 
       // Add the triangle
       float u = Triangle(st, vec2(0.5, 0.4), size);
