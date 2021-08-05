@@ -63,7 +63,7 @@ class WebGLCarousel {
           )
         },
         uGridSize: {
-          value: new Vec2(5, 3)
+          value: new Vec2(6, 3)
         },
         uTexture0: {
           value: this.textures[0]

@@ -55,7 +55,7 @@ float Tiles(vec2 uv, float progress) {
       float randomOffsetY = Random(triangleID.x);
       randomOffsetY = (randomOffsetY - 0.5) * 2.0;
 
-      vec2 randomOffset = vec2(randomOffsetX, randomOffsetY)*0.4;
+      vec2 randomOffset = vec2(randomOffsetX, randomOffsetY)*0.1;
 
       // Determine if the current triangle can be drawn or not
       float isVisible = step(abs(triangleID.x), uGridSize.x);
@@ -66,13 +66,23 @@ float Tiles(vec2 uv, float progress) {
       float alpha = smoothstep(fadeStart, 0., progress);
 
       // Determine the size of each triangle using the `progress` parameter
-      float sizeFactor = max(Random(triangleID), 0.3);
-      float size = mix(0.26, 0.9, progress*sizeFactor);
+      float sizeFactor = min(Random(triangleID), 0.3);
+
+      // Get the normalized distance of the current triangle from the center of the
+      // screen to add it to the scale of the triangle.
+      float dist = distance(vec2(0.0), triangleID) / max(uGridSize.x, uGridSize.y);
+      dist *= 0.15;
+
+      float size = mix(0.26, 0.9, progress*sizeFactor)+dist;
+
+      // Apply a random rotation between -PI and +PI to each triangle
+      mat2 triangleRandomRotation = Rotate(PI*(Random(triangleID) - 0.5)*2.0);
 
       /*
        * Draw the triangles pointing down
        */
-      float d = Triangle(gv - tileOffset - tileShift - randomOffset, vec2(0.5), size);
+      vec2 rotatedGV = (gv - vec2(0.0, 0.4) - tileOffset - tileShift - randomOffset - 0.5)*triangleRandomRotation + 0.5;
+      float d = Triangle(rotatedGV, vec2(0.5), size);
       d *= isVisible;
       d *= alpha;
 
@@ -81,7 +91,7 @@ float Tiles(vec2 uv, float progress) {
        */
 
       // Create a new set of UVs named `st` and rotate them around their center
-      vec2 st = (gv - tileOffset - tileShift - randomOffset)*Rotate(PI) + 0.5;
+      vec2 st = (gv - tileOffset - tileShift - randomOffset)*triangleRandomRotation + 0.5;
 
       // Add the triangle
       float u = Triangle(st, vec2(0.5, 0.4), size);
@@ -91,6 +101,21 @@ float Tiles(vec2 uv, float progress) {
       result += d+u;
     }
   }
+
+  // Create a mask of the size of the grid that is used to display the full image
+  float fullImageMask = step(abs(id.x) + 0.5, uGridSize.x);
+  fullImageMask *= step(abs(id.y), uGridSize.y);
+
+  // "Mask" it with the value of the triangles' grid.
+  // This basically creates holes in the mask.
+  // This step is needed because we will add this mask with the triangles, otherwise
+  // The final result would have areas much more luminous than the normal.
+  fullImageMask *= 1.0 - result;
+
+  // Set the alpha value of this mask using the `progress` parameter.
+  fullImageMask *= smoothstep(0.45, 0.1, abs(progress));
+
+  result += fullImageMask;
 
   return result;
 }
