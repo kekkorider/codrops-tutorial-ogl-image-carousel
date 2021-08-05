@@ -5,6 +5,8 @@ uniform vec2 uResolution;
 uniform vec2 uGridSize;
 uniform sampler2D uTexture0;
 uniform vec2 uTexture0Size;
+uniform sampler2D uTexture1;
+uniform vec2 uTexture1Size;
 
 varying vec2 vUv;
 
@@ -90,19 +92,26 @@ void main() {
   vec3 color = vec3(0.0);
 
   // Animation progress for the image's mask
-  float progress0 = smoothstep(0.1, 0.9, uProgress);
+  float progress0 = smoothstep(0.25, 0.8, uProgress);
+  float progress1 = smoothstep(1.0, 0.2, uProgress);
 
   // Create the masks with the triangles
   float mask0 = Tiles(uv, progress0);
+  float mask1 = Tiles(uv, progress1);
 
   // Create the textures
   vec2 coverUV = Cover(vUv, uResolution, uTexture0Size);
   vec4 tex0 = texture2D(uTexture0, coverUV);
 
+  coverUV = Cover(vUv, uResolution, uTexture1Size);
+  vec4 tex1 = texture2D(uTexture1, coverUV);
+
   // "Layers" are just the textures with the masks applied
   vec3 layer0 = tex0.rgb*mask0;
+  vec3 layer1 = tex1.rgb*mask1;
 
-  color = layer0;
+  // Display one texture or the other based on the value of `uProgress`
+  color = mix(layer0, layer1, uProgress);
 
   gl_FragColor = vec4(color, 1.0);
 }

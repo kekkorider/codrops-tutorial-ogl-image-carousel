@@ -29,6 +29,11 @@ class WebGLCarousel {
             this.textures[0].height
           )
 
+          this.program.uniforms.uTexture1Size.value = new Vec2(
+            this.textures[1].width,
+            this.textures[1].height
+          )
+
           this.renderer.render({ scene: this.mesh })
         })
       })
@@ -64,6 +69,12 @@ class WebGLCarousel {
           value: this.textures[0]
         },
         uTexture0Size: {
+          value: new Vec2()
+        },
+        uTexture1: {
+          value: this.textures[1]
+        },
+        uTexture1Size: {
           value: new Vec2()
         }
       }
