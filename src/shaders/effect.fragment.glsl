@@ -3,6 +3,7 @@ precision highp float;
 uniform float uProgress;
 uniform vec2 uResolution;
 uniform vec2 uGridSize;
+uniform sampler2D uTexture0;
 
 varying vec2 vUv;
 
@@ -81,10 +82,7 @@ void main() {
 
   color += Tiles(uv);
 
-  // Debug axes
-  float pixel = 1.0 / uResolution.x;
-  color.r += 1.0 - step(pixel*4.0, abs(uv.x));
-  color.r += 1.0 - step(pixel*4.0, abs(uv.y));
+  vec4 tex0 = texture2D(uTexture0, uv*0.5 + 0.5);
 
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(tex0.rgb, 1.0);
 }
