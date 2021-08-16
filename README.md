@@ -1,6 +1,6 @@
-# Codrops tutorial: Image carousel with OGL and GSAP
+# Abstract Image Slideshow with OGL, GLSL, and GSAP
 
-Learn how to create a WebGL-powered image slideshow animated using a single value.
+Demo for the tutorial on how to create a WebGL-powered image slideshow animated using a single value.
 
 ![Image](https://tympanus.net/codrops/wp-content/uploads/2021/08/TriangleGridSlideshow_feat.jpg)
 
