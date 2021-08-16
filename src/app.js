@@ -8,9 +8,10 @@ class WebGLCarousel {
     this.wrapper = document.querySelector('[data-canvas-wrapper]')
 
     this.texturesURLs = [
-      '/images/stewart-maclean-mT8E8qJGfmE-unsplash.jpg',
-      '/images/patrick-Qsy50Y7uEf0-unsplash.jpg',
-      '/images/masahiro-miyagi-YF7yruF3W5E-unsplash.jpg'
+      '/images/1.jpg',
+      '/images/2.jpg',
+      '/images/3.jpg',
+      '/images/4.jpg'   
     ]
 
     this.state = {
@@ -78,7 +79,7 @@ class WebGLCarousel {
           )
         },
         uGridSize: {
-          value: new Vec2(6, 3)
+          value: new Vec2(4, 8)
         },
         uTexture0: {
           value: this.state.texture0
