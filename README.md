@@ -28,5 +28,5 @@ Then the development server will start at `http://localhost:1234`
 
 ## Build package
 ```shell
-$ yarn dev
+$ yarn build
 ```
